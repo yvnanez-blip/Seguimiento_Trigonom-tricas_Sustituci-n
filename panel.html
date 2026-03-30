@@ -1,50 +1,28 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Panel de Control - Examen</title>
+<meta charset="UTF-8">
+<title>Panel</title>
 
-  <style>
-    body { font-family: Arial; margin: 30px; }
-    h1 { color: darkblue; }
+<style>
+table { width:100%; border-collapse: collapse; }
+td, th { border:1px solid #ccc; padding:10px; text-align:center; }
+.anulado { background:red; color:white; }
+.finalizado { background:green; color:white; }
+.inicio { background:yellow; }
+</style>
 
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-    }
-
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: center;
-    }
-
-    th {
-      background: #f2f2f2;
-    }
-
-    .anulado { background: #ffcccc; }
-    .finalizado { background: #ccffcc; }
-    .inicio { background: #fff3cd; }
-  </style>
 </head>
-
 <body>
 
-<h1>📊 Panel de Seguimiento del Examen</h1>
-
+<h1>Panel de Examen</h1>
 <table>
-  <thead>
-    <tr>
-      <th>Estudiante</th>
-      <th>Estado</th>
-      <th>Puntaje</th>
-      <th>Total</th>
-      <th>Fecha</th>
-    </tr>
-  </thead>
-  <tbody id="tabla"></tbody>
+<thead>
+<tr>
+<th>ID</th><th>Estado</th><th>Puntaje</th>
+</tr>
+</thead>
+<tbody id="tabla"></tbody>
 </table>
 
 <script type="module">
@@ -55,41 +33,26 @@ const firebaseConfig = {
   apiKey: "AIzaSyA1jXzATkBnjVYg2khsHaY4d6IDnqNabZA",
   authDomain: "sa-sustitucion-trigonometrica.firebaseapp.com",
   projectId: "sa-sustitucion-trigonometrica",
-  storageBucket: "sa-sustitucion-trigonometrica.firebasestorage.app",
-  messagingSenderId: "385279091202",
-  appId: "1:385279091202:web:f342c612df2d7464b8fd1b"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ESCUCHAR EN TIEMPO REAL
-onSnapshot(collection(db, "intentos"), (snapshot) => {
-
-  const tabla = document.getElementById("tabla");
+onSnapshot(collection(db, "intentos"), (snap) => {
+  let tabla = document.getElementById("tabla");
   tabla.innerHTML = "";
 
-  snapshot.forEach(doc => {
-    const data = doc.data();
+  snap.forEach(doc => {
+    let d = doc.data();
 
-    let estado = data.estado || "inicio";
-    let puntaje = data.puntaje ?? "-";
-    let total = data.total ?? "-";
-    let fecha = data.fechaFinal || data.fecha || data.horaAnulacion || "-";
-
-    let fila = `
-      <tr class="${estado}">
-        <td>${doc.id}</td>
-        <td>${estado}</td>
-        <td>${puntaje}</td>
-        <td>${total}</td>
-        <td>${fecha}</td>
+    tabla.innerHTML += `
+      <tr class="${d.estado}">
+        <td>${d.estudianteID}</td>
+        <td>${d.estado}</td>
+        <td>${d.puntaje ?? "-"}</td>
       </tr>
     `;
-
-    tabla.innerHTML += fila;
   });
-
 });
 </script>
 
