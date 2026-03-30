@@ -27,32 +27,38 @@ td, th { border:1px solid #ccc; padding:10px; text-align:center; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
+// 🔹 Configuración Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyA1jXzATkBnjVYg2khsHaY4d6IDnqNabZA",
-  authDomain: "sa-sustitucion-trigonometrica.firebaseapp.com",
-  projectId: "sa-sustitucion-trigonometrica",
+  apiKey: "TU_API_KEY",
+  authDomain: "tu-proyecto.firebaseapp.com",
+  projectId: "tu-proyecto",
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const examenDoc = doc(db, "intentos", "examen2026");
 
-onSnapshot(collection(db, "intentos"), (snap) => {
+// 🔹 Escucha cambios en tiempo real
+onSnapshot(examenDoc, (docSnap) => {
   let tabla = document.getElementById("tabla");
   tabla.innerHTML = "";
 
-  snap.forEach(doc => {
-    let d = doc.data();
+  if(docSnap.exists()){
+    const estudiantes = docSnap.data().estudiantes || {};
 
-    tabla.innerHTML += `
-      <tr class="${d.estado}">
-        <td>${d.estudianteID}</td>
-        <td>${d.estado}</td>
-        <td>${d.puntaje ?? "-"}</td>
-      </tr>
-    `;
-  });
+    for(const id in estudiantes){
+      const d = estudiantes[id];
+      tabla.innerHTML += `
+        <tr class="${d.estado}">
+          <td>${id}</td>
+          <td>${d.estado}</td>
+          <td>${d.puntaje ?? "-"}</td>
+        </tr>
+      `;
+    }
+  }
 });
 </script>
 
