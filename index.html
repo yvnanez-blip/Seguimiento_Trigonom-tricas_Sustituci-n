@@ -2,153 +2,61 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Seguimiento Académico - Cálculo Integral</title>
-
-  <!-- MathJax -->
-  <script>
-    window.MathJax = {
-      tex: { inlineMath: [['\\(', '\\)']] }
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-
-  <style>
-    body { font-family: Arial; margin: 30px; }
-    h1 { color: darkblue; }
-    h2 { color: darkgreen; }
-    #timer { font-size: 18px; margin-bottom: 20px; }
-    button { padding: 8px 15px; margin-top: 10px; }
-  </style>
+  <title>Ingreso al Examen</title>
 </head>
 
 <body>
 
-<h1>Seguimiento Académico - Cálculo Integral</h1>
+<h2>Ingreso al examen</h2>
 
-<div style="border:2px solid red; padding:10px; background:#ffeeee;">
-  <b>Tiempo máximo:</b> 2 horas<br>
-  No cambiar de pestaña
-</div>
+<input type="text" id="nombre" placeholder="Ingrese su nombre o correo">
+<br><br>
+<button onclick="ingresar()">Ingresar</button>
 
-<div id="timer">Tiempo restante: <span id="time">02:00:00</span></div>
-<div id="examen"></div>
+<script type="module">
+  // 🔥 Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyA1jXzATkBnjVYg2khsHaY4d6IDnqNabZA",
+    authDomain: "sa-sustitucion-trigonometrica.firebaseapp.com",
+    projectId: "sa-sustitucion-trigonometrica",
+    storageBucket: "sa-sustitucion-trigonometrica.firebasestorage.app",
+    messagingSenderId: "385279091202",
+    appId: "1:385279091202:web:f342c612df2d7464b8fd1b"
+  };
 
-// TIEMPO
-let tiempo = 2 * 3600;
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-// BANCO
-const banco = [
-  {
-    tema: "Integrales Trigonométricas",
-    q: "\\( \\int \\sin^3(x)\\cos^2(x)\\,dx \\)",
-    opciones: [
-      "\\( -\\frac{1}{3}\\cos^3(x) + \\frac{1}{5}\\cos^5(x) + C \\)",
-      "\\( \\frac{1}{3}\\sin^3(x) - \\frac{1}{5}\\sin^5(x) + C \\)",
-      "\\( -\\frac{1}{4}\\cos^4(x) + \\frac{1}{6}\\cos^6(x) + C \\)",
-      "\\( \\frac{1}{3}\\cos^3(x) + \\frac{1}{5}\\cos^5(x) + C \\)"
-    ],
-    correcta: 0
-  },
-  {
-    tema: "Sustitución Trigonométrica",
-    q: "\\( \\int \\frac{dx}{\\sqrt{9-x^2}} \\)",
-    opciones: [
-      "\\( x=3\\sec\\theta \\)",
-      "\\( x=3\\tan\\theta \\)",
-      "\\( x=3\\sin\\theta;\\ \\arcsin(x/3)+C \\)",
-      "\\( x=9\\sin\\theta \\)"
-    ],
-    correcta: 2
-  },
-  {
-    tema: "Casos Especiales",
-    q: "\\( \\int \\sec^3(x)dx \\)",
-    opciones: [
-      "\\( \\sec(x)\\tan(x)+\\ln|\\sec(x)+\\tan(x)|+C \\)",
-      "\\( \\frac{1}{2}[\\sec(x)\\tan(x)-\\ln|\\sec(x)+\\tan(x)|]+C \\)",
-      "\\( \\frac{1}{2}[\\sec(x)\\tan(x)+\\ln|\\sec(x)+\\tan(x)|]+C \\)",
-      "\\( \\frac{1}{3}\\sec^3(x)+C \\)"
-    ],
-    correcta: 2
+  // 🔐 FUNCIÓN INGRESAR
+  window.ingresar = async function() {
+    let nombre = document.getElementById("nombre").value;
+
+    if(nombre === ""){
+      alert("Debe ingresar su nombre o correo");
+      return;
+    }
+
+    try {
+      // Guardar intento en Firebase
+      await addDoc(collection(db, "intentos"), {
+        nombre: nombre,
+        fecha: new Date().toLocaleString(),
+        estado: "inicio"
+      });
+
+      // Guardar en navegador
+      localStorage.setItem("usuario", nombre);
+
+      // Ir al examen
+      window.location.href = "examen.html";
+
+    } catch (error) {
+      alert("Error al registrar: " + error);
+    }
   }
-];
-
-// MEZCLAR
-banco.sort(() => Math.random() - 0.5);
-
-let i = 0;
-
-// MOSTRAR
-function mostrar() {
-  if (i >= banco.length) return resultado();
-
-  let p = banco[i];
-
-  let html = `<h2>${p.tema}</h2><p>${p.q}</p>`;
-
-  p.opciones.forEach((op, idx) => {
-    html += `<label><input type="radio" name="r" value="${idx}"> ${op}</label><br>`;
-  });
-
-  html += `<button onclick="siguiente()">${i === banco.length - 1 ? "Finalizar" : "Siguiente"}</button>`;
-
-  document.getElementById("examen").innerHTML = html;
-
-  MathJax.typeset();
-}
-
-// SIGUIENTE
-function siguiente() {
-  let sel = document.querySelector("input[name='r']:checked");
-
-  if (!sel) {
-    alert("Seleccione una opción");
-    return;
-  }
-
-  banco[i].resp = parseInt(sel.value);
-  i++;
-  mostrar();
-}
-
-// RESULTADO
-function resultado() {
-  let correctas = 0;
-
-  banco.forEach(p => {
-    if (p.resp === p.correcta) correctas++;
-  });
-
-  document.getElementById("examen").innerHTML =
-    `<h2>Resultado</h2><p>${correctas} de ${banco.length}</p>`;
-}
-
-// TIMER
-setInterval(() => {
-  let h = Math.floor(tiempo / 3600);
-  let m = Math.floor((tiempo % 3600) / 60);
-  let s = tiempo % 60;
-
-  document.getElementById("time").textContent =
-    `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-
-  if (tiempo <= 0) resultado();
-
-  tiempo--;
-}, 1000);
-
-// BLOQUEO PESTAÑA
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden) {
-    document.body.innerHTML = "<h1 style='color:red'>EXAMEN ANULADO</h1>";
-  }
-});
-
-// INICIO
-mostrar();
-
 </script>
 
 </body>
