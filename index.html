@@ -15,7 +15,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA1jXzATkBnjVYg2khsHaY4d6IDnqNabZA",
@@ -29,6 +29,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// Documento único que contiene a todos los estudiantes
+const examenDoc = doc(db, "intentos", "examen2026");
+
 window.ingresar = async function() {
   let id = document.getElementById("estudianteID").value.trim();
 
@@ -37,39 +40,55 @@ window.ingresar = async function() {
     return;
   }
 
-  const ref = doc(db, "intentos", id);
-  const docSnap = await getDoc(ref);
+  const docSnap = await getDoc(examenDoc);
+  let estudiantes = {};
+
+  if(docSnap.exists()){
+    estudiantes = docSnap.data().estudiantes || {};
+  }
 
   // 🔒 BLOQUEO DE INTENTOS
-  if (docSnap.exists()) {
-    let data = docSnap.data();
+  if(estudiantes[id]?.estado === "finalizado"){
+    alert("Ya presentaste el examen.");
+    return;
+  }
 
-    if (data.estado === "finalizado") {
-      alert("Ya presentaste el examen.");
-      return;
-    }
+  if(estudiantes[id]?.estado === "anulado"){
+    alert("Tu examen fue anulado.");
+    return;
+  }
 
-    if (data.estado === "anulado") {
-      alert("Tu examen fue anulado.");
-      return;
-    }
-
-    if (data.estado === "inicio") {
-      alert("Ya tienes un examen en curso.");
-      return;
-    }
+  if(estudiantes[id]?.estado === "inicio"){
+    alert("Ya tienes un examen en curso.");
+    return;
   }
 
   // ✅ REGISTRAR
-  await setDoc(ref, {
-    estudianteID: id,
+  estudiantes[id] = {
     estado: "inicio",
-    fecha: new Date().toLocaleString()
-  });
+    fecha: new Date().toLocaleString(),
+    respuestas: {}
+  };
+
+  await updateDoc(examenDoc, { estudiantes });
 
   localStorage.setItem("usuario", id);
   window.location.href = "examen.html";
 }
+
+// 🔒 ANULAR EXAMEN SI CIERRA PESTAÑA
+window.addEventListener("beforeunload", async () => {
+  const id = localStorage.getItem("usuario");
+  if(!id) return;
+
+  const docSnap = await getDoc(examenDoc);
+  const estudiantes = docSnap.exists() ? docSnap.data().estudiantes || {} : {};
+
+  if(estudiantes[id] && estudiantes[id].estado === "inicio"){
+    estudiantes[id].estado = "anulado";
+    await updateDoc(examenDoc, { estudiantes });
+  }
+});
 </script>
 
 </body>
