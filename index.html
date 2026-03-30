@@ -9,54 +9,67 @@
 
 <h2>Ingreso al examen</h2>
 
-<input type="text" id="nombre" placeholder="Ingrese su nombre o correo">
+<input type="text" id="estudianteID" placeholder="Ingrese su ID de estudiante">
 <br><br>
 <button onclick="ingresar()">Ingresar</button>
 
 <script type="module">
-  // 🔥 Firebase
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyA1jXzATkBnjVYg2khsHaY4d6IDnqNabZA",
-    authDomain: "sa-sustitucion-trigonometrica.firebaseapp.com",
-    projectId: "sa-sustitucion-trigonometrica",
-    storageBucket: "sa-sustitucion-trigonometrica.firebasestorage.app",
-    messagingSenderId: "385279091202",
-    appId: "1:385279091202:web:f342c612df2d7464b8fd1b"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyA1jXzATkBnjVYg2khsHaY4d6IDnqNabZA",
+  authDomain: "sa-sustitucion-trigonometrica.firebaseapp.com",
+  projectId: "sa-sustitucion-trigonometrica",
+  storageBucket: "sa-sustitucion-trigonometrica.firebasestorage.app",
+  messagingSenderId: "385279091202",
+  appId: "1:385279091202:web:f342c612df2d7464b8fd1b"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  // 🔐 FUNCIÓN INGRESAR
-  window.ingresar = async function() {
-    let nombre = document.getElementById("nombre").value;
+window.ingresar = async function() {
+  let id = document.getElementById("estudianteID").value.trim();
 
-    if(nombre === ""){
-      alert("Debe ingresar su nombre o correo");
+  if(id === ""){
+    alert("Ingrese su ID de estudiante");
+    return;
+  }
+
+  const ref = doc(db, "intentos", id);
+  const docSnap = await getDoc(ref);
+
+  // 🔒 BLOQUEO DE INTENTOS
+  if (docSnap.exists()) {
+    let data = docSnap.data();
+
+    if (data.estado === "finalizado") {
+      alert("Ya presentaste el examen.");
       return;
     }
 
-    try {
-      // Guardar intento en Firebase
-      await addDoc(collection(db, "intentos"), {
-        nombre: nombre,
-        fecha: new Date().toLocaleString(),
-        estado: "inicio"
-      });
+    if (data.estado === "anulado") {
+      alert("Tu examen fue anulado.");
+      return;
+    }
 
-      // Guardar en navegador
-      localStorage.setItem("usuario", nombre);
-
-      // Ir al examen
-      window.location.href = "examen.html";
-
-    } catch (error) {
-      alert("Error al registrar: " + error);
+    if (data.estado === "inicio") {
+      alert("Ya tienes un examen en curso.");
+      return;
     }
   }
+
+  // ✅ REGISTRAR
+  await setDoc(ref, {
+    estudianteID: id,
+    estado: "inicio",
+    fecha: new Date().toLocaleString()
+  });
+
+  localStorage.setItem("usuario", id);
+  window.location.href = "examen.html";
+}
 </script>
 
 </body>
