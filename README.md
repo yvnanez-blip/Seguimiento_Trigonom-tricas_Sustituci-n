@@ -1,0 +1,1 @@
+# Seguimiento_Trigonom-tricas_Sustituci-n
