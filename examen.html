@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Seguimiento Académico</title>
+  <title>Examen</title>
 
   <script>
     window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] } };
@@ -12,6 +12,10 @@
   <style>
     body { font-family: Arial; margin: 30px; }
     h1 { color: darkblue; }
+    #timer { font-weight: bold; margin-bottom: 20px; }
+    #timer.warning { color: orange; }
+    #timer.danger { color: red; animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
   </style>
 </head>
 
@@ -23,43 +27,36 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
+// 🔹 Configuración Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyA1jXzATkBnjVYg2khsHaY4d6IDnqNabZA",
-  authDomain: "sa-sustitucion-trigonometrica.firebaseapp.com",
-  projectId: "sa-sustitucion-trigonometrica",
-  storageBucket: "sa-sustitucion-trigonometrica.firebasestorage.app",
-  messagingSenderId: "385279091202",
-  appId: "1:385279091202:web:f342c612df2d7464b8fd1b"
+  apiKey: "TU_API_KEY",
+  authDomain: "tu-proyecto.firebaseapp.com",
+  projectId: "tu-proyecto",
+  storageBucket: "tu-proyecto.firebasestorage.app",
+  messagingSenderId: "xxxx",
+  appId: "xxxx"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
+const examenDoc = doc(db, "intentos", "examen2026");
 const usuario = localStorage.getItem("usuario");
 
+// 🔹 Tiempo inicial 2 horas en segundos
 let tiempo = 2 * 3600;
 
+// 🔹 Banco de preguntas
 const banco = [
-  {
-    tema: "Trigonométrica",
-    q: "\\( \\int \\sin^3(x)\\cos^2(x)dx \\)",
-    opciones: ["A","B","C","D"],
-    correcta: 0
-  },
-  {
-    tema: "Sustitución",
-    q: "\\( \\int \\frac{dx}{\\sqrt{9-x^2}} \\)",
-    opciones: ["A","B","C","D"],
-    correcta: 2
-  }
+  { tema: "Trigonométrica", q: "\\( \\int \\sin^3(x)\\cos^2(x)dx \\)", opciones: ["A","B","C","D"], correcta: 0 },
+  { tema: "Sustitución", q: "\\( \\int \\frac{dx}{\\sqrt{9-x^2}} \\)", opciones: ["A","B","C","D"], correcta: 2 }
 ];
 
 banco.sort(() => Math.random() - 0.5);
-
 let i = 0;
 
+// 🔹 Mostrar pregunta
 function mostrar() {
   if (i >= banco.length) return resultado();
 
@@ -71,11 +68,11 @@ function mostrar() {
   });
 
   html += `<button onclick="siguiente()">Siguiente</button>`;
-
   document.getElementById("examen").innerHTML = html;
   MathJax.typeset();
 }
 
+// 🔹 Siguiente pregunta
 window.siguiente = function() {
   let sel = document.querySelector("input[name='r']:checked");
   if (!sel) return alert("Seleccione una opción");
@@ -85,50 +82,65 @@ window.siguiente = function() {
   mostrar();
 }
 
+// 🔹 Guardar resultados en Firestore
 async function resultado() {
   let correctas = 0;
   banco.forEach(p => { if (p.resp === p.correcta) correctas++; });
 
-  if (usuario) {
-    await setDoc(doc(db, "intentos", usuario), {
+  if(usuario){
+    const docSnap = await getDoc(examenDoc);
+    const estudiantes = docSnap.exists() ? docSnap.data().estudiantes || {} : {};
+
+    estudiantes[usuario] = {
+      ...estudiantes[usuario],
       estado: "finalizado",
       puntaje: correctas,
-      total: banco.length
-    }, { merge: true });
+      total: banco.length,
+      respuestas: banco.map(p => p.resp)
+    };
+
+    await updateDoc(examenDoc, { estudiantes });
   }
 
-  document.getElementById("examen").innerHTML =
-    `<h2>Resultado: ${correctas}</h2>`;
+  document.getElementById("examen").innerHTML = `<h2>Resultado: ${correctas} / ${banco.length}</h2>`;
 }
 
-// ⏱️ TIMER
+// 🔹 Timer con aviso visual
 setInterval(() => {
   let h = Math.floor(tiempo / 3600);
   let m = Math.floor((tiempo % 3600) / 60);
   let s = tiempo % 60;
 
+  const timeDiv = document.getElementById("timer");
   document.getElementById("time").textContent =
     `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
 
+  if (tiempo <= 600 && tiempo > 300) timeDiv.className = "warning"; // <10 min
+  if (tiempo <= 60) timeDiv.className = "danger"; // <1 min
   if (tiempo <= 0) resultado();
+
   tiempo--;
 }, 1000);
 
-// 🚫 CAMBIO DE PESTAÑA
+// 🔹 Anulación si cambia de pestaña
 document.addEventListener("visibilitychange", async () => {
-  if (document.hidden) {
+  if (document.hidden && usuario) {
+    const docSnap = await getDoc(examenDoc);
+    const estudiantes = docSnap.exists() ? docSnap.data().estudiantes || {} : {};
 
-    if (usuario) {
-      await setDoc(doc(db, "intentos", usuario), {
-        estado: "anulado"
-      }, { merge: true });
-    }
+    estudiantes[usuario] = {
+      ...estudiantes[usuario],
+      estado: "anulado"
+    };
 
+    await updateDoc(examenDoc, { estudiantes });
     document.body.innerHTML = "<h1 style='color:red'>EXAMEN ANULADO</h1>";
   }
 });
 
+// 🔹 Iniciar examen
 mostrar();
+
 </script>
 
 </body>
