@@ -2,35 +2,23 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Seguimiento Académico - Cálculo Integral</title>
+  <title>Seguimiento Académico</title>
 
-  <!-- MathJax -->
   <script>
-    window.MathJax = {
-      tex: { inlineMath: [['\\(', '\\)']] }
-    };
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] } };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
   <style>
     body { font-family: Arial; margin: 30px; }
     h1 { color: darkblue; }
-    h2 { color: darkgreen; }
-    #timer { font-size: 18px; margin-bottom: 20px; }
-    button { padding: 8px 15px; margin-top: 10px; }
   </style>
 </head>
 
 <body>
 
-<h1>Seguimiento Académico - Cálculo Integral</h1>
-
-<div style="border:2px solid red; padding:10px; background:#ffeeee;">
-  <b>Tiempo máximo:</b> 2 horas<br>
-  No cambiar de pestaña
-</div>
-
-<div id="timer">Tiempo restante: <span id="time">02:00:00</span></div>
+<h1>Examen</h1>
+<div id="timer">Tiempo: <span id="time">02:00:00</span></div>
 <div id="examen"></div>
 
 <script type="module">
@@ -49,109 +37,71 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// TIEMPO
-let tiempo = 2 * 3600;
-
-// USUARIO
 const usuario = localStorage.getItem("usuario");
 
-// BANCO
+let tiempo = 2 * 3600;
+
 const banco = [
   {
-    tema: "Integrales Trigonométricas",
-    q: "\\( \\int \\sin^3(x)\\cos^2(x)\\,dx \\)",
-    opciones: [
-      "\\( -\\frac{1}{3}\\cos^3(x) + \\frac{1}{5}\\cos^5(x) + C \\)",
-      "\\( \\frac{1}{3}\\sin^3(x) - \\frac{1}{5}\\sin^5(x) + C \\)",
-      "\\( -\\frac{1}{4}\\cos^4(x) + \\frac{1}{6}\\cos^6(x) + C \\)",
-      "\\( \\frac{1}{3}\\cos^3(x) + \\frac{1}{5}\\cos^5(x) + C \\)"
-    ],
+    tema: "Trigonométrica",
+    q: "\\( \\int \\sin^3(x)\\cos^2(x)dx \\)",
+    opciones: ["A","B","C","D"],
     correcta: 0
   },
   {
-    tema: "Sustitución Trigonométrica",
+    tema: "Sustitución",
     q: "\\( \\int \\frac{dx}{\\sqrt{9-x^2}} \\)",
-    opciones: [
-      "\\( x=3\\sec\\theta \\)",
-      "\\( x=3\\tan\\theta \\)",
-      "\\( x=3\\sin\\theta;\\ \\arcsin(x/3)+C \\)",
-      "\\( x=9\\sin\\theta \\)"
-    ],
-    correcta: 2
-  },
-  {
-    tema: "Casos Especiales",
-    q: "\\( \\int \\sec^3(x)dx \\)",
-    opciones: [
-      "\\( \\sec(x)\\tan(x)+\\ln|\\sec(x)+\\tan(x)|+C \\)",
-      "\\( \\frac{1}{2}[\\sec(x)\\tan(x)-\\ln|\\sec(x)+\\tan(x)|]+C \\)",
-      "\\( \\frac{1}{2}[\\sec(x)\\tan(x)+\\ln|\\sec(x)+\\tan(x)|]+C \\)",
-      "\\( \\frac{1}{3}\\sec^3(x)+C \\)"
-    ],
+    opciones: ["A","B","C","D"],
     correcta: 2
   }
 ];
 
-// MEZCLAR
 banco.sort(() => Math.random() - 0.5);
 
 let i = 0;
 
-// MOSTRAR
 function mostrar() {
   if (i >= banco.length) return resultado();
 
   let p = banco[i];
-
   let html = `<h2>${p.tema}</h2><p>${p.q}</p>`;
 
   p.opciones.forEach((op, idx) => {
     html += `<label><input type="radio" name="r" value="${idx}"> ${op}</label><br>`;
   });
 
-  html += `<button onclick="siguiente()">${i === banco.length - 1 ? "Finalizar" : "Siguiente"}</button>`;
+  html += `<button onclick="siguiente()">Siguiente</button>`;
 
   document.getElementById("examen").innerHTML = html;
-
   MathJax.typeset();
 }
 
-// SIGUIENTE
 window.siguiente = function() {
   let sel = document.querySelector("input[name='r']:checked");
-
-  if (!sel) {
-    alert("Seleccione una opción");
-    return;
-  }
+  if (!sel) return alert("Seleccione una opción");
 
   banco[i].resp = parseInt(sel.value);
   i++;
   mostrar();
 }
 
-// RESULTADO
 async function resultado() {
   let correctas = 0;
-
-  banco.forEach(p => {
-    if (p.resp === p.correcta) correctas++;
-  });
+  banco.forEach(p => { if (p.resp === p.correcta) correctas++; });
 
   if (usuario) {
     await setDoc(doc(db, "intentos", usuario), {
       estado: "finalizado",
       puntaje: correctas,
-      total: banco.length,
-      fechaFinal: new Date().toLocaleString()
+      total: banco.length
     }, { merge: true });
   }
 
   document.getElementById("examen").innerHTML =
-    `<h2>Resultado</h2><p>${correctas} de ${banco.length}</p>`;
+    `<h2>Resultado: ${correctas}</h2>`;
 }
 
-// TIMER
+// ⏱️ TIMER
 setInterval(() => {
   let h = Math.floor(tiempo / 3600);
   let m = Math.floor((tiempo % 3600) / 60);
@@ -161,18 +111,16 @@ setInterval(() => {
     `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
 
   if (tiempo <= 0) resultado();
-
   tiempo--;
 }, 1000);
 
-// BLOQUEO PESTAÑA
+// 🚫 CAMBIO DE PESTAÑA
 document.addEventListener("visibilitychange", async () => {
   if (document.hidden) {
 
     if (usuario) {
       await setDoc(doc(db, "intentos", usuario), {
-        estado: "anulado",
-        horaAnulacion: new Date().toLocaleString()
+        estado: "anulado"
       }, { merge: true });
     }
 
@@ -180,9 +128,7 @@ document.addEventListener("visibilitychange", async () => {
   }
 });
 
-// INICIO
 mostrar();
-
 </script>
 
 </body>
