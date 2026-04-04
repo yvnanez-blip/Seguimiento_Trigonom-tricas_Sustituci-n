@@ -26,9 +26,9 @@ td, th { border:1px solid #ccc; padding:10px; text-align:center; }
 </table>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
+import { getDatabase, ref, get, update, onValue } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+  
 // 🔹 Configuración Firebase
 const firebaseConfig = {
   apiKey: "TU_API_KEY",
@@ -38,8 +38,8 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const examenDoc = doc(db, "intentos", "examen2026");
+const db = getDatabase(app);
+const examenRef = ref(db, "intentos/examen2026");
 
 // 🔹 Escucha cambios en tiempo real
 onSnapshot(examenDoc, (docSnap) => {
