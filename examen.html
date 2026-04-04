@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -31,8 +31,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getDatabase, ref, get, update } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
 // 🔹 CONFIG FIREBASE
 const firebaseConfig = {
@@ -51,6 +50,7 @@ const usuario = localStorage.getItem("usuario");
 
 // ⏱ TIEMPO
 let tiempo = 2 * 3600; // 2 horas
+let examenTerminado = false; // bandera para controlar si ya se enviaron las respuestas
 
 // 📚 BANCO DE PREGUNTAS CON VALOR POR TEMA
 const banco = {
@@ -124,6 +124,7 @@ function mostrarPregunta(index){
 
 // Enviar respuestas
 async function enviarRespuestas(){
+  examenTerminado = true; // marcar como terminado para que no anule
   let totalPuntos = 0;
   examenMostrado.forEach(item=>{
     if(item.seleccion===item.pregunta.correcta) totalPuntos += item.valor;
@@ -137,7 +138,7 @@ async function enviarRespuestas(){
       ...estudiantes[usuario],
       estado:"finalizado",
       puntaje: totalPuntos,
-      total: 5, // total máximo según tu ponderación 1+2+2
+      total: 5,
       respuestas: examenMostrado.map(p=>p.seleccion)
     };
 
@@ -159,13 +160,13 @@ setInterval(()=>{
   if(tiempo<=600 && tiempo>300) timerSpan.className="warning";
   else if(tiempo<=60) timerSpan.className="danger";
   else timerSpan.className="";
-  if(tiempo<=0) enviarRespuestas();
+  if(tiempo<=0 && !examenTerminado) enviarRespuestas();
   tiempo--;
 },1000);
 
-// Control de pestaña
-document.addEventListener("visibilitychange",()=>{
-  if(document.hidden){
+// Control de pestaña solo si examen NO se envió
+document.addEventListener("visibilitychange", ()=>{
+  if(document.hidden && !examenTerminado){
     alert("❌ Examen anulado");
     document.getElementById("examen").innerHTML="<h2 style='color:red'>ANULADO</h2>";
   }
@@ -173,7 +174,7 @@ document.addEventListener("visibilitychange",()=>{
 
 // Inicio
 mostrarPregunta(currentIndex);
-</script>
 
+</script>
 </body>
 </html>
