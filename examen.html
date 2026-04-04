@@ -26,8 +26,8 @@
 <div id="examen"></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getDatabase, ref, get, update, onValue } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
 // 🔹 Configuración Firebase
 const firebaseConfig = {
@@ -38,8 +38,8 @@ const firebaseConfig = {
 };
   
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const examenDoc = doc(db, "intentos", "examen2026");
+const db = getDatabase(app);
+const examenRef = ref(db, "intentos/examen2026");
 const usuario = localStorage.getItem("usuario");
 
 // 🔹 Tiempo inicial 2 horas en segundos
