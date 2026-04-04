@@ -26,35 +26,38 @@
 <div id="examen"></div>
 
 <script type="module">
-import { getDatabase, ref, get, update, onValue } 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getDatabase, ref, get, update } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-// 🔹 Configuración Firebase
+// 🔹 CONFIG FIREBASE
 const firebaseConfig = {
   apiKey: "TU_API_KEY",
   authDomain: "examen-libre.firebaseapp.com",
   projectId: "examen-libre",
   databaseURL: "https://examen-libre-5bb39-default-rtdb.firebaseio.com"
 };
-  
+
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const examenRef = ref(db, "intentos/examen2026");
+
 const usuario = localStorage.getItem("usuario");
 
-// 🔹 Tiempo inicial 2 horas en segundos
+// ⏱ TIEMPO
 let tiempo = 2 * 3600;
 
-// 🔹 Banco de preguntas
+// 📚 BANCO
 const banco = [
   { tema: "Trigonométrica", q: "\\( \\int \\sin^3(x)\\cos^2(x)dx \\)", opciones: ["A","B","C","D"], correcta: 0 },
   { tema: "Sustitución", q: "\\( \\int \\frac{dx}{\\sqrt{9-x^2}} \\)", opciones: ["A","B","C","D"], correcta: 2 }
 ];
 
 banco.sort(() => Math.random() - 0.5);
+
 let i = 0;
 
-// 🔹 Mostrar pregunta
+// 🔹 MOSTRAR
 function mostrar() {
   if (i >= banco.length) return resultado();
 
@@ -66,11 +69,12 @@ function mostrar() {
   });
 
   html += `<button onclick="siguiente()">Siguiente</button>`;
+
   document.getElementById("examen").innerHTML = html;
   MathJax.typeset();
 }
 
-// 🔹 Siguiente pregunta
+// 🔹 SIGUIENTE
 window.siguiente = function() {
   let sel = document.querySelector("input[name='r']:checked");
   if (!sel) return alert("Seleccione una opción");
@@ -78,16 +82,16 @@ window.siguiente = function() {
   banco[i].resp = parseInt(sel.value);
   i++;
   mostrar();
-}
+};
 
-// 🔹 Guardar resultados en Firestore
+// 🔹 RESULTADO
 async function resultado() {
   let correctas = 0;
   banco.forEach(p => { if (p.resp === p.correcta) correctas++; });
 
   if(usuario){
-    const docSnap = await getDoc(examenDoc);
-    const estudiantes = docSnap.exists() ? docSnap.data().estudiantes || {} : {};
+    const snapshot = await get(examenRef);
+    const estudiantes = snapshot.exists() ? snapshot.val().estudiantes || {} : {};
 
     estudiantes[usuario] = {
       ...estudiantes[usuario],
@@ -97,46 +101,49 @@ async function resultado() {
       respuestas: banco.map(p => p.resp)
     };
 
-    await updateDoc(examenDoc, { estudiantes });
+    await update(examenRef, { estudiantes });
   }
 
-  document.getElementById("examen").innerHTML = `<h2>Resultado: ${correctas} / ${banco.length}</h2>`;
+  document.getElementById("examen").innerHTML =
+    `<h2>Resultado: ${correctas} / ${banco.length}</h2>`;
 }
 
-// 🔹 Timer con aviso visual
+// ⏱ TIMER
 setInterval(() => {
   let h = Math.floor(tiempo / 3600);
   let m = Math.floor((tiempo % 3600) / 60);
   let s = tiempo % 60;
 
   const timeDiv = document.getElementById("timer");
+
   document.getElementById("time").textContent =
     `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
 
-  if (tiempo <= 600 && tiempo > 300) timeDiv.className = "warning"; // <10 min
-  if (tiempo <= 60) timeDiv.className = "danger"; // <1 min
+  if (tiempo <= 600 && tiempo > 300) timeDiv.className = "warning";
+  if (tiempo <= 60) timeDiv.className = "danger";
   if (tiempo <= 0) resultado();
 
   tiempo--;
 }, 1000);
 
-// 🔹 Anulación si cambia de pestaña
+// 🔒 ANULACIÓN
 document.addEventListener("visibilitychange", async () => {
   if (document.hidden && usuario) {
-    const docSnap = await getDoc(examenDoc);
-    const estudiantes = docSnap.exists() ? docSnap.data().estudiantes || {} : {};
+    const snapshot = await get(examenRef);
+    const estudiantes = snapshot.exists() ? snapshot.val().estudiantes || {} : {};
 
     estudiantes[usuario] = {
       ...estudiantes[usuario],
       estado: "anulado"
     };
 
-    await updateDoc(examenDoc, { estudiantes });
+    await update(examenRef, { estudiantes });
+
     document.body.innerHTML = "<h1 style='color:red'>EXAMEN ANULADO</h1>";
   }
 });
 
-// 🔹 Iniciar examen
+// 🚀 INICIAR
 mostrar();
 
 </script>
