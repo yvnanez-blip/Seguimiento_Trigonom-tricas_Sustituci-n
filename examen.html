@@ -1,100 +1,179 @@
-  "Integrales Trigonométricas": [
-    {
-      q: "\\( \\int \\sin^3(x)\\cos^2(x)\\,dx \\)",
-      opciones: [
-        "\\( -\\frac{1}{3}\\cos^3(x) + \\frac{1}{5}\\cos^5(x) + C \\)",
-        "\\( \\frac{1}{3}\\sin^3(x) - \\frac{1}{5}\\sin^5(x) + C \\)",
-        "\\( -\\frac{1}{4}\\cos^4(x) + \\frac{1}{6}\\cos^6(x) + C \\)",
-        "\\( \\frac{1}{3}\\cos^3(x) + \\frac{1}{5}\\cos^5(x) + C \\)"
-      ],
-      respuesta_correcta: 0
-    },
-    {
-      q: "\\( \\int \\cos^2(x)\\,dx \\)",
-      opciones: [
-        "\\( \\frac{x}{2} - \\frac{\\sin(2x)}{4} + C \\)",
-        "\\( \\frac{x}{2} + \\frac{\\sin(2x)}{4} + C \\)",
-        "\\( \\frac{\\sin^3(x)}{3} + C \\)",
-        "\\( x + \\sin(2x) + C \\)"
-      ],
-      respuesta_correcta: 1
-    },
-    {
-      q: "\\( \\int \\sin(5x)\\sin(2x)\\,dx \\)",
-      opciones: [
-        "\\( \\frac{1}{2}\\left( \\frac{\\sin(3x)}{3} + \\frac{\\sin(7x)}{7} \\right) + C \\)",
-        "\\( \\frac{1}{2}\\left( \\frac{\\cos(3x)}{3} - \\frac{\\cos(7x)}{7} \\right) + C \\)",
-        "\\( \\frac{1}{2}\\left( \\frac{\\sin(3x)}{3} - \\frac{\\sin(7x)}{7} \\right) + C \\)",
-        "\\( -\\frac{1}{10}\\cos(5x)\\cos(2x) + C \\)"
-      ],
-      respuesta_correcta: 2
-    }
-  ],
+  <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Examen</title>
 
-  "Sustitución Trigonométrica": [
-    {
-      q: "\\( \\int \\frac{dx}{\\sqrt{9 - x^2}} \\)",
-      opciones: [
-        "\\( x=3\\sec\\theta;\\ \\text{arcsec}(x/3)+C \\)",
-        "\\( x=3\\tan\\theta;\\ \\frac{1}{3}\\arctan(x/3)+C \\)",
-        "\\( x=3\\sin\\theta;\\ \\arcsin(x/3)+C \\)",
-        "\\( x=9\\sin\\theta;\\ \\arcsin(x/9)+C \\)"
-      ],
-      respuesta_correcta: 2
-    },
-    {
-      q: "\\( \\int \\frac{dx}{x^2\\sqrt{x^2 + 4}} \\)",
-      opciones: [
-        "\\( -\\frac{\\sqrt{x^2+4}}{4x} + C \\)",
-        "\\( \\frac{\\sqrt{x^2+4}}{x} + C \\)",
-        "\\( \\frac{1}{4}\\ln|x+\\sqrt{x^2+4}| + C \\)",
-        "\\( -\\frac{1}{2x} + C \\)"
-      ],
-      respuesta_correcta: 0
-    },
-    {
-      q: "\\( \\int \\frac{\\sqrt{x^2-25}}{x}\\,dx \\)",
-      opciones: [
-        "\\( \\sqrt{x^2-25} - 5x + C \\)",
-        "\\( \\sqrt{x^2-25} - 5\\,\\text{arcsec}(x/5) + C \\)",
-        "\\( 5\\tan\\theta - 5\\theta + C \\)",
-        "\\( \\frac{1}{2}(x^2-25)^{3/2} + C \\)"
-      ],
-      respuesta_correcta: 1
-    }
-  ],
+  <!-- MathJax -->
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
-  "Casos Especiales": [
-    {
-      q: "\\( \\int \\tan^2(x)\\sec^2(x)\\,dx \\)",
-      opciones: [
-        "\\( \\tan^3(x) + C \\)",
-        "\\( \\frac{1}{3}\\tan^3(x) + C \\)",
-        "\\( \\frac{1}{3}\\sec^3(x) + C \\)",
-        "\\( \\tan(x)\\sec(x) + C \\)"
-      ],
-      respuesta_correcta: 1
-    },
-    {
-      q: "\\( \\int \\sec^4(x)\\,dx \\)",
-      opciones: [
-        "\\( \\tan(x) + \\frac{1}{3}\\tan^3(x) + C \\)",
-        "\\( \\frac{1}{4}\\sec^5(x) + C \\)",
-        "\\( \\tan(x) + \\sec^2(x) + C \\)",
-        "\\( \\frac{1}{3}\\tan^3(x) + C \\)"
-      ],
-      respuesta_correcta: 0
-    },
-    {
-      q: "\\( \\int \\sec^3(x)\\,dx \\)",
-      opciones: [
-        "\\( \\sec(x)\\tan(x) + \\ln|\\sec(x)+\\tan(x)| + C \\)",
-        "\\( \\frac{1}{2}[\\sec(x)\\tan(x) - \\ln|\\sec(x)+\\tan(x)|] + C \\)",
-        "\\( \\frac{1}{2}[\\sec(x)\\tan(x) + \\ln|\\sec(x)+\\tan(x)|] + C \\)",
-        "\\( \\frac{1}{3}\\sec^3(x) + \\tan(x) + C \\)"
-      ],
-      respuesta_correcta: 2
-    }
-  ]
+  <style>
+    body { font-family: Arial; margin: 30px; }
+    h1 { color: darkblue; }
+    h2 { color: darkblue; margin-top: 20px; }
+    #timer { font-weight: bold; margin-bottom: 20px; }
+    #timer.warning { color: orange; }
+    #timer.danger { color: red; animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    button { margin-top: 10px; padding: 5px 10px; }
+    .pregunta { margin-bottom: 20px; }
+  </style>
+</head>
 
+<body>
+
+<h1>Examen de Cálculo Integral</h1>
+<div id="timer">Tiempo: <span id="time">02:00:00</span></div>
+<div id="examen"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getDatabase, ref, get, update } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+
+// 🔹 CONFIG FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyB9-ANws4iOMXw3b2VsSbGSW6vS9zoWtuQ",
+  authDomain: "examen-libre-5bb39.firebaseapp.com",
+  projectId: "examen-libre-5bb39",
+  storageBucket: "examen-libre-5bb39.firebasestorage.app",
+  messagingSenderId: "256764575178",
+  appId: "1:256764575178:web:ff9a04bf6bee2bb40b6333"
 };
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const examenRef = ref(db, "intentos/examen2026");
+
+const usuario = localStorage.getItem("usuario");
+
+// ⏱ TIEMPO
+let tiempo = 2 * 3600; // 2 horas
+
+// 📚 BANCO DE PREGUNTAS CON VALOR POR TEMA
+const banco = {
+  "Integrales Trigonométricas": { valor: 1, preguntas: [
+    { q: "\\( \\int \\sin^3(x)\\cos^2(x)\\,dx \\)", opciones: ["\\( -\\frac{1}{3}\\cos^3(x) + \\frac{1}{5}\\cos^5(x) + C \\)","\\( \\frac{1}{3}\\sin^3(x) - \\frac{1}{5}\\sin^5(x) + C \\)","\\( -\\frac{1}{4}\\cos^4(x) + \\frac{1}{6}\\cos^6(x) + C \\)","\\( \\frac{1}{3}\\cos^3(x) + \\frac{1}{5}\\cos^5(x) + C \\)"], correcta:0 },
+    { q: "\\( \\int \\cos^2(x)\\,dx \\)", opciones: ["\\( \\frac{x}{2} - \\frac{\\sin(2x)}{4} + C \\)","\\( \\frac{x}{2} + \\frac{\\sin(2x)}{4} + C \\)","\\( \\frac{\\sin^3(x)}{3} + C \\)","\\( x + \\sin(2x) + C \\)"], correcta:1 },
+    { q: "\\( \\int \\sin(5x)\\sin(2x)\\,dx \\)", opciones: ["\\( \\frac{1}{2}\\left( \\frac{\\sin(3x)}{3} + \\frac{\\sin(7x)}{7} \\right) + C \\)","\\( \\frac{1}{2}\\left( \\frac{\\cos(3x)}{3} - \\frac{\\cos(7x)}{7} \\right) + C \\)","\\( \\frac{1}{2}\\left( \\frac{\\sin(3x)}{3} - \\frac{\\sin(7x)}{7} \\right) + C \\)","\\( -\\frac{1}{10}\\cos(5x)\\cos(2x) + C \\)"], correcta:2 }
+  ]},
+
+  "Sustitución Trigonométrica": { valor: 2, preguntas: [
+    { q: "\\( \\int \\frac{dx}{\\sqrt{9 - x^2}} \\)", opciones: ["\\( x=3\\sec\\theta;\\ \\text{arcsec}(x/3)+C \\)","\\( x=3\\tan\\theta;\\ \\frac{1}{3}\\arctan(x/3)+C \\)","\\( x=3\\sin\\theta;\\ \\arcsin(x/3)+C \\)","\\( x=9\\sin\\theta;\\ \\arcsin(x/9)+C \\)"], correcta:2 },
+    { q: "\\( \\int \\frac{dx}{x^2\\sqrt{x^2 + 4}} \\)", opciones: ["\\( -\\frac{\\sqrt{x^2+4}}{4x} + C \\)","\\( \\frac{\\sqrt{x^2+4}}{x} + C \\)","\\( \\frac{1}{4}\\ln|x+\\sqrt{x^2+4}| + C \\)","\\( -\\frac{1}{2x} + C \\)"], correcta:0 },
+    { q: "\\( \\int \\frac{\\sqrt{x^2-25}}{x}\\,dx \\)", opciones: ["\\( \\sqrt{x^2-25} - 5x + C \\)","\\( \\sqrt{x^2-25} - 5\\,\\text{arcsec}(x/5) + C \\)","\\( 5\\tan\\theta - 5\\theta + C \\)","\\( \\frac{1}{2}(x^2-25)^{3/2} + C \\)"], correcta:1 }
+  ]},
+
+  "Casos Especiales": { valor: 2, preguntas: [
+    { q: "\\( \\int \\tan^2(x)\\sec^2(x)\\,dx \\)", opciones: ["\\( \\tan^3(x) + C \\)","\\( \\frac{1}{3}\\tan^3(x) + C \\)","\\( \\frac{1}{3}\\sec^3(x) + C \\)","\\( \\tan(x)\\sec(x) + C \\)"], correcta:1 },
+    { q: "\\( \\int \\sec^4(x)\\,dx \\)", opciones: ["\\( \\tan(x) + \\frac{1}{3}\\tan^3(x) + C \\)","\\( \\frac{1}{4}\\sec^5(x) + C \\)","\\( \\tan(x) + \\sec^2(x) + C \\)","\\( \\frac{1}{3}\\tan^3(x) + C \\)"], correcta:0 },
+    { q: "\\( \\int \\sec^3(x)\\,dx \\)", opciones: ["\\( \\sec(x)\\tan(x) + \\ln|\\sec(x)+\\tan(x)| + C \\)","\\( \\frac{1}{2}[\\sec(x)\\tan(x) - \\ln|\\sec(x)+\\tan(x)|] + C \\)","\\( \\frac{1}{2}[\\sec(x)\\tan(x) + \\ln|\\sec(x)+\\tan(x)|] + C \\)","\\( \\frac{1}{3}\\sec^3(x) + \\tan(x) + C \\)"], correcta:2 }
+  ]}
+};
+
+// 🔀 Mezclar
+function shuffle(array){
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
+  }
+  return array;
+}
+
+// Preparar examen
+let examenMostrado = [];
+for(let tema in banco){
+  const preguntas = banco[tema].preguntas;
+  const valor = banco[tema].valor;
+  const aleatoria = preguntas[Math.floor(Math.random()*preguntas.length)];
+  let opciones = aleatoria.opciones.map((op, idx)=>({op,index:idx}));
+  opciones = shuffle(opciones);
+  examenMostrado.push({tema, valor, pregunta:aleatoria, opciones, seleccion:null});
+}
+examenMostrado = shuffle(examenMostrado);
+let currentIndex = 0;
+
+// Mostrar pregunta
+function mostrarPregunta(index){
+  const cont = document.getElementById("examen");
+  cont.innerHTML = "";
+  if(index>=examenMostrado.length) return enviarRespuestas();
+
+  const item = examenMostrado[index];
+  const div = document.createElement("div");
+  div.innerHTML = `<h2>${item.tema}</h2><p>${item.pregunta.q}</p>`;
+  item.opciones.forEach(({op,index})=>{
+    div.innerHTML += `<label><input type="radio" name="r" value="${index}"> ${op}</label><br>`;
+  });
+
+  const btn = document.createElement("button");
+  btn.textContent = (index===examenMostrado.length-1)?"Enviar Respuestas":"Siguiente";
+  btn.onclick = ()=>{
+    const sel = div.querySelector("input[name='r']:checked");
+    item.seleccion = sel?parseInt(sel.value):null;
+    currentIndex++;
+    mostrarPregunta(currentIndex);
+  };
+
+  div.appendChild(btn);
+  cont.appendChild(div);
+  MathJax.typesetPromise();
+}
+
+// Enviar respuestas
+async function enviarRespuestas(){
+  let totalPuntos = 0;
+  examenMostrado.forEach(item=>{
+    if(item.seleccion===item.pregunta.correcta) totalPuntos += item.valor;
+  });
+
+  if(usuario){
+    const snapshot = await get(examenRef);
+    const estudiantes = snapshot.exists()?snapshot.val().estudiantes||{}:{};
+
+    estudiantes[usuario] = {
+      ...estudiantes[usuario],
+      estado:"finalizado",
+      puntaje: totalPuntos,
+      total: 5, // total máximo según tu ponderación 1+2+2
+      respuestas: examenMostrado.map(p=>p.seleccion)
+    };
+
+    await update(examenRef,{estudiantes});
+  }
+
+  document.getElementById("examen").innerHTML =
+    `<h2>Resultado: ${totalPuntos} / 5</h2>
+     <p>Sus respuestas han sido enviadas y registradas en la base de datos.</p>`;
+}
+
+// Timer
+const timerSpan = document.getElementById("time");
+setInterval(()=>{
+  let h = Math.floor(tiempo/3600);
+  let m = Math.floor((tiempo%3600)/60);
+  let s = tiempo%60;
+  timerSpan.textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  if(tiempo<=600 && tiempo>300) timerSpan.className="warning";
+  else if(tiempo<=60) timerSpan.className="danger";
+  else timerSpan.className="";
+  if(tiempo<=0) enviarRespuestas();
+  tiempo--;
+},1000);
+
+// Control de pestaña
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){
+    alert("❌ Examen anulado");
+    document.getElementById("examen").innerHTML="<h2 style='color:red'>ANULADO</h2>";
+  }
+});
+
+// Inicio
+mostrarPregunta(currentIndex);
+</script>
+
+</body>
+</html>
