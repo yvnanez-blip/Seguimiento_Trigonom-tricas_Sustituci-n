@@ -14,7 +14,8 @@
 <button onclick="ingresar()">Ingresar</button>
 
 <script type="module">
-import { getDatabase, ref, get, update, onValue } 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getDatabase, ref, get, update } 
 from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -23,10 +24,11 @@ const firebaseConfig = {
   projectId: "examen-libre",
   databaseURL: "https://examen-libre-5bb39-default-rtdb.firebaseio.com"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Documento único que contiene a todos los estudiantes
+// Referencia en Realtime
 const examenRef = ref(db, "intentos/examen2026");
 
 window.ingresar = async function() {
@@ -37,12 +39,8 @@ window.ingresar = async function() {
     return;
   }
 
-  const docSnap = await getDoc(examenDoc);
-  let estudiantes = {};
-
-  if(docSnap.exists()){
-    estudiantes = docSnap.data().estudiantes || {};
-  }
+  const snapshot = await get(examenRef);
+  let estudiantes = snapshot.exists() ? snapshot.val().estudiantes || {} : {};
 
   // 🔒 BLOQUEO DE INTENTOS
   if(estudiantes[id]?.estado === "finalizado"){
@@ -67,23 +65,23 @@ window.ingresar = async function() {
     respuestas: {}
   };
 
-  await updateDoc(examenDoc, { estudiantes });
+  await update(examenRef, { estudiantes });
 
   localStorage.setItem("usuario", id);
   window.location.href = "examen.html";
-}
+};
 
-// 🔒 ANULAR EXAMEN SI CIERRA PESTAÑA
+// 🔒 ANULAR SI CIERRA
 window.addEventListener("beforeunload", async () => {
   const id = localStorage.getItem("usuario");
   if(!id) return;
 
-  const docSnap = await getDoc(examenDoc);
-  const estudiantes = docSnap.exists() ? docSnap.data().estudiantes || {} : {};
+  const snapshot = await get(examenRef);
+  const estudiantes = snapshot.exists() ? snapshot.val().estudiantes || {} : {};
 
   if(estudiantes[id] && estudiantes[id].estado === "inicio"){
     estudiantes[id].estado = "anulado";
-    await updateDoc(examenDoc, { estudiantes });
+    await update(examenRef, { estudiantes });
   }
 });
 </script>
