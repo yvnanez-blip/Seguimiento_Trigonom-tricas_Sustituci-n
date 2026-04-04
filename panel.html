@@ -10,12 +10,15 @@ h1 { color: darkblue; margin-bottom: 20px; }
 
 table { width:100%; border-collapse: collapse; }
 td, th { border:1px solid #ccc; padding:10px; text-align:center; }
+
 .anulado { background:red; color:white; }
 .finalizado { background:green; color:white; }
-.inicio { background:yellow; }
+.inicio { background:yellow; color:black; }
 
 button { margin-bottom: 15px; padding: 10px 15px; font-size: 14px; cursor:pointer; }
 </style>
+</head>
+<body>
 
 <h1>Panel de Examen</h1>
 
@@ -64,10 +67,26 @@ onValue(examenRef, (snapshot) => {
 
   for (const id in estudiantes) {
     const d = estudiantes[id];
+
+    // 🔹 Determinar el estado a mostrar
+    let estadoClase = "";
+    let estadoTexto = "";
+
+    if (d.estado === "anulado") {
+      estadoClase = "anulado";
+      estadoTexto = "Anulado";
+    } else if (d.respuestas && d.respuestas.length > 0) {
+      estadoClase = "finalizado";
+      estadoTexto = "Finalizado";
+    } else {
+      estadoClase = "inicio"; // examen en curso
+      estadoTexto = "En curso";
+    }
+
     tabla.innerHTML += `
-      <tr class="${d.estado}">
+      <tr class="${estadoClase}">
         <td>${id}</td>
-        <td>${d.estado}</td>
+        <td>${estadoTexto}</td>
         <td>${d.puntaje ?? "-"}</td>
         <td>${d.total ?? "-"}</td>
         <td>${d.respuestas ? d.respuestas.join(", ") : "-"}</td>
