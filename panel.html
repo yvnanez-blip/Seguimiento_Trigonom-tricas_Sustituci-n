@@ -2,27 +2,33 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Panel</title>
+<title>Panel de Examen</title>
 
 <style>
+body { font-family: Arial, sans-serif; margin: 20px; }
+h1 { color: darkblue; margin-bottom: 20px; }
+
 table { width:100%; border-collapse: collapse; }
 td, th { border:1px solid #ccc; padding:10px; text-align:center; }
 .anulado { background:red; color:white; }
 .finalizado { background:green; color:white; }
 .inicio { background:yellow; }
+
+button { margin-bottom: 15px; padding: 10px 15px; font-size: 14px; cursor:pointer; }
 </style>
 
-</head>
-<body>
-
 <h1>Panel de Examen</h1>
+
+<button id="exportBtn">Exportar a CSV</button>
 
 <table>
 <thead>
 <tr>
-<th>ID</th>
-<th>Estado</th>
-<th>Puntaje</th>
+  <th>ID</th>
+  <th>Estado</th>
+  <th>Puntaje</th>
+  <th>Total Preguntas</th>
+  <th>Respuestas</th>
 </tr>
 </thead>
 <tbody id="tabla"></tbody>
@@ -30,8 +36,7 @@ td, th { border:1px solid #ccc; padding:10px; text-align:center; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getDatabase, ref, onValue } 
-from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
 // 🔹 Configuración Firebase
 const firebaseConfig = {
@@ -59,15 +64,37 @@ onValue(examenRef, (snapshot) => {
 
   for (const id in estudiantes) {
     const d = estudiantes[id];
-
     tabla.innerHTML += `
       <tr class="${d.estado}">
         <td>${id}</td>
         <td>${d.estado}</td>
         <td>${d.puntaje ?? "-"}</td>
+        <td>${d.total ?? "-"}</td>
+        <td>${d.respuestas ? d.respuestas.join(", ") : "-"}</td>
       </tr>
     `;
   }
+});
+
+// 🔹 Exportar a CSV
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const rows = document.querySelectorAll("table tr");
+  let csvContent = "";
+  rows.forEach(row => {
+    const cols = row.querySelectorAll("td, th");
+    const rowData = [];
+    cols.forEach(col => rowData.push(col.textContent));
+    csvContent += rowData.join(",") + "\n";
+  });
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "panel_examen.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 });
 </script>
 
