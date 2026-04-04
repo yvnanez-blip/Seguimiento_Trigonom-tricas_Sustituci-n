@@ -14,8 +14,8 @@
 <button onclick="ingresar()">Ingresar</button>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getDatabase, ref, get, update, onValue } 
+from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "TU_API_KEY",
@@ -24,10 +24,10 @@ const firebaseConfig = {
   databaseURL: "https://examen-libre-5bb39-default-rtdb.firebaseio.com"
 };
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db = getDatabase(app);
 
 // Documento único que contiene a todos los estudiantes
-const examenDoc = doc(db, "intentos", "examen2026");
+const examenRef = ref(db, "intentos/examen2026");
 
 window.ingresar = async function() {
   let id = document.getElementById("estudianteID").value.trim();
