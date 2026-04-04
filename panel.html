@@ -32,6 +32,7 @@ button { margin-bottom: 15px; padding: 10px 15px; font-size: 14px; cursor:pointe
   <th>Puntaje</th>
   <th>Total Preguntas</th>
   <th>Respuestas</th>
+  <th>Hora Inicio</th>
 </tr>
 </thead>
 <tbody id="tabla"></tbody>
@@ -45,6 +46,7 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12
 const firebaseConfig = {
   apiKey: "AIzaSyB9-ANws4iOMXw3b2VsSbGSW6vS9zoWtuQ",
   authDomain: "examen-libre-5bb39.firebaseapp.com",
+  databaseURL: "https://examen-libre-5bb39-default-rtdb.firebaseio.com",
   projectId: "examen-libre-5bb39",
   storageBucket: "examen-libre-5bb39.firebasestorage.app",
   messagingSenderId: "256764575178",
@@ -54,10 +56,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// 🔹 Referencia a datos
+// 🔹 Escucha intentos en tiempo real
 const examenRef = ref(db, "intentos/examen2026");
 
-// 🔹 Escucha en tiempo real
 onValue(examenRef, (snapshot) => {
   const tabla = document.getElementById("tabla");
   tabla.innerHTML = "";
@@ -68,7 +69,7 @@ onValue(examenRef, (snapshot) => {
   for (const id in estudiantes) {
     const d = estudiantes[id];
 
-    // 🔹 Determinar el estado a mostrar
+    // 🔹 Determinar el estado
     let estadoClase = "";
     let estadoTexto = "";
 
@@ -79,7 +80,7 @@ onValue(examenRef, (snapshot) => {
       estadoClase = "finalizado";
       estadoTexto = "Finalizado";
     } else {
-      estadoClase = "inicio"; // examen en curso
+      estadoClase = "inicio";
       estadoTexto = "En curso";
     }
 
@@ -90,6 +91,7 @@ onValue(examenRef, (snapshot) => {
         <td>${d.puntaje ?? "-"}</td>
         <td>${d.total ?? "-"}</td>
         <td>${d.respuestas ? d.respuestas.join(", ") : "-"}</td>
+        <td>${d.horaInicio ?? "-"}</td>
       </tr>
     `;
   }
